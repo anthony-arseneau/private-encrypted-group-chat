@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class Whitelist {
     // Class constants
-    private static final String whitelist = "whitelist.txt";
+    private static final String whitelist = "Documents/whitelist.txt";
 
     // Instance variables
     private HashMap<String, String> users;
