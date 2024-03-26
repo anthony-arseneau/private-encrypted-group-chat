@@ -11,12 +11,14 @@ public class Whitelist {
 
     // Instance variables
     private HashMap<String, String> users;
-    private MessageDigest digest;
     
-    public Whitelist() throws NoSuchAlgorithmException, IOException {
-        digest = MessageDigest.getInstance("SHA-256");
-        users = new HashMap<>();
-        readWhitelist();
+    public Whitelist() {
+        try {
+            users = new HashMap<>();
+            readWhitelist();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
     }
 
     public void addToWhitelist() throws IOException {
@@ -54,21 +56,19 @@ public class Whitelist {
         writer.close();
     }
 
-    private void addUser(String username, String password) {
-        // Hash username and get hex string value
-        byte[] usernameHashed = digest.digest(username.getBytes(StandardCharsets.UTF_8));
-        String usernameHashedHex = bytesToHex(usernameHashed);
-
-        // Hash password and get hex string value
-        byte[] passwordHashed = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-        String passwordHashedHex = bytesToHex(passwordHashed);
-
+    private void addUser(String usernameHashedHex, String passwordHashedHex) {
         // Check to see if username already exists
         if (!users.containsKey(usernameHashedHex)) {
             users.put(usernameHashedHex, passwordHashedHex);
         } else {
             System.out.println("Username already exits");
         }
+    }
+
+    public boolean validUser(String usernameHashedHex, String passwordHashedHex) {
+        if (!users.containsKey(usernameHashedHex)) return false;
+        if (!(users.get(usernameHashedHex)).equals(passwordHashedHex)) return false;
+        return true;
     }
 
     private void readWhitelist() throws IOException {
@@ -81,18 +81,7 @@ public class Whitelist {
             users.put(username, password);
         }
         reader.close();
-    }
 
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
