@@ -19,12 +19,13 @@ public class ChatClientListener {
      * @param socket the socket of the client to transfer information
      * @param username the username of this client
      */
-    public ChatClientListener(String username) {
+    public ChatClientListener(String username, String password) {
         try {
             socket = new Socket("127.0.0.1", 12000); // Current IP address is local for testing
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            chatView = new ChatView(socket, username);
+            chatView = new ChatView(socket, username, password);
             chatView.initialize();
+            listenForMessages();
         } catch (IOException e) {
             // Error handling
             closeAll(socket, bufferedReader);
@@ -34,19 +35,31 @@ public class ChatClientListener {
     /**
      * Method to listen for incomming messages
      */
-    public void listenForMessages() {
+    public void listenForMessages() throws IOException {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String messageFromGroupChat;
-                while (socket.isConnected()) {
-                    try {
-                        messageFromGroupChat = bufferedReader.readLine();
-                        chatView.addText(messageFromGroupChat);
-                    } catch (IOException e) {
-                        // Error handling
+                String response = null;
+                try {
+                    while (socket.isConnected() && response == null) {
+                        response = bufferedReader.readLine();
+                    }
+
+                    if (response.equals("Invalid Credentials")) {
+                        System.out.println("Invalid Credentials");
+                        chatView.addText(response);
                         closeAll(socket, bufferedReader);
                     }
+                    else {
+                        String messageFromGroupChat;
+                        while (socket.isConnected()) {
+                            messageFromGroupChat = bufferedReader.readLine();
+                            chatView.addText(messageFromGroupChat);
+                        } 
+                    }
+                } catch (IOException e) {
+                    // Error handling
+                    closeAll(socket, bufferedReader);
                 }
             }
         }).start();

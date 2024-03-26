@@ -1,7 +1,9 @@
 package src;
+
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 /**
  * This class is for handling all the clients that are connected to the server.
@@ -25,15 +27,33 @@ public class ChatClientHandler implements Runnable {
     /**
      * Constructor
      * @param socket the socket of the server to transfer information
+     * @throws NoSuchAlgorithmException 
      */
     public ChatClientHandler(Socket socket) {
         try {
             this.socket = socket;
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // Read incoming messages
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); // Write and send messages
-            this.chatClientUserName = bufferedReader.readLine();
-            chatClientHandlers.add(this);
-            broadCastMessage(chatClientUserName + " has entered the chat!");
+
+            String[] clientCredentials = bufferedReader.readLine().split(" ");
+            String username = clientCredentials[0];
+            String password = clientCredentials[1];
+
+            Whitelist whitelist = new Whitelist();
+            if (!whitelist.validUser(username, password)) {
+                bufferedWriter.write("Invalid Credentials");
+                bufferedWriter.flush();
+                System.out.println("New client disconnected due to invalid credentials");
+                closeAll(socket, bufferedReader, bufferedWriter);
+            }
+            else {
+                bufferedWriter.write("Correct credentials");
+                bufferedWriter.flush();
+                chatClientUserName = username;
+                chatClientHandlers.add(this);
+                System.out.println("New client successfully connected to the groupchat");
+                broadCastMessage(chatClientUserName + " has entered the chat!");
+            }
         } catch (IOException e) {
             // Error handling
             closeAll(socket, bufferedReader, bufferedWriter);
@@ -46,7 +66,12 @@ public class ChatClientHandler implements Runnable {
         while (socket.isConnected()) {
             try {
                 messageFromClient = bufferedReader.readLine();
-                broadCastMessage(messageFromClient);
+                if (messageFromClient.equals("--stop connection--")) {
+                    removeClientHandler();
+                }
+                else {
+                    broadCastMessage(messageFromClient);
+                }
             } catch (IOException e) {
                 closeAll(socket, bufferedReader, bufferedWriter);
                 break;
@@ -79,8 +104,10 @@ public class ChatClientHandler implements Runnable {
      * Method to remove a client from the server indicating that they left the chat
      */
     public void removeClientHandler() {
-        chatClientHandlers.remove(this); // Remove this current client
-        broadCastMessage("SERVER: " + chatClientUserName + " has left the chat!");
+        if (chatClientHandlers.contains(this)) {
+            chatClientHandlers.remove(this); // Remove this current client
+            broadCastMessage(chatClientUserName + " has left the chat");
+        }
     }
 
     /**
