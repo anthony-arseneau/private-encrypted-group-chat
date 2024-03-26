@@ -14,7 +14,6 @@ import java.io.*;
 public class ChatServer {
     // Instance variables
     private ServerSocket serverSocket; // The socket the server is using to transfer data
-    private Whitelist whitelist;
 
     /**
      * Constructor
@@ -32,7 +31,7 @@ public class ChatServer {
             while (!serverSocket.isClosed()) { // While the server socket is not closed, loop
                 // Accept new clients that want to connect to the server
                 Socket socket = serverSocket.accept();
-                System.out.println("A new client has been connected!");
+                System.out.println("A new client has been connected");
                 ChatClientHandler chatClientHandler = new ChatClientHandler(socket);
 
                 // Start a new thread for the new connected client

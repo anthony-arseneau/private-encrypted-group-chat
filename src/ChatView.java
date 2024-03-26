@@ -40,14 +40,16 @@ public class ChatView extends JFrame {
     private ChatClientSender chatClientSender;
     private Socket socket;
     private String username;
+    private String password;
 
-    public ChatView(Socket socket, String username) {
+    public ChatView(Socket socket, String username, String password) {
         this.socket = socket;
         this.username = username;
+        this.password = password;
     }
 
     public void initialize() {
-        chatClientSender = new ChatClientSender(socket, username);
+        chatClientSender = new ChatClientSender(socket, username, password);
         /********** Scroll Area **********/
         textArea = new JTextArea(10, 15);
         textArea.setBorder(new EmptyBorder(S_BORDER_PADDING, S_BORDER_PADDING, S_BORDER_PADDING, S_BORDER_PADDING));
@@ -114,7 +116,15 @@ public class ChatView extends JFrame {
         add(mainPanel);
 
         setTitle("Secure Private Group Chat");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        //setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent evt) {
+                chatClientSender.sendMessage("--stop connection--");
+                chatClientSender.closeAll();
+                dispose();
+                System.exit(0);
+            }
+           });
         setLocationRelativeTo(null);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -128,7 +138,7 @@ public class ChatView extends JFrame {
     }
     
     public static void main(String[] args) throws IOException {
-        ChatView chatView = new ChatView(new Socket("127.0.0.1", 12000), "user1");
+        ChatView chatView = new ChatView(new Socket("127.0.0.1", 12000), "user1", "password123");
         chatView.initialize();
     }
 
