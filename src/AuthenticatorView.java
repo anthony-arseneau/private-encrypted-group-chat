@@ -83,9 +83,8 @@ public class AuthenticatorView extends JFrame {
                 String username = tfUsername.getText();
                 String password = tfPassword.getText();
                 lbVerifying.setText("Verifying credentials...");
-                ChatClientListener chatClientListener = new ChatClientListener(username);
-                dispose();
-                chatClientListener.listenForMessages();
+                ChatClientListener chatClientListener = new ChatClientListener(username, password);
+                dispose(); // removes window
                 //chatClient.requestAccess();
             }
         });
@@ -120,8 +119,7 @@ public class AuthenticatorView extends JFrame {
         chatClient.listenForMessages();
         ChatView chatView = new ChatView(chatClient);
     }
-    */
-
+    */ 
     public static void main(String[] args) {
         AuthenticatorView clientFrame = new AuthenticatorView();
         clientFrame.initialize();
