@@ -1,9 +1,12 @@
-package src;
+package src.Client;
 
 import java.net.*;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import javax.crypto.*;
+
+import src.RSAEncryption;
+
 import java.io.*;
 
 /**

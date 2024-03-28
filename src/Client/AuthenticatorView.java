@@ -1,4 +1,4 @@
-package src;
+package src.Client;
 
 import java.awt.*;
 import java.awt.event.*;

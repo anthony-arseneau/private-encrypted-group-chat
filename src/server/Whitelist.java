@@ -1,4 +1,4 @@
-package src;
+package src.server;
 
 import java.io.*;
 import java.util.HashMap;

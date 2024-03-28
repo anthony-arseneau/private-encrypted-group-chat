@@ -1,4 +1,4 @@
-package src;
+package src.server;
 
 import java.io.*;
 import java.net.Socket;
@@ -6,6 +6,8 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import javax.crypto.*;
+
+import src.RSAEncryption;
 
 /**
  * This class is for handling all the clients that are connected to the server. It holds a list of all clients that are connected,

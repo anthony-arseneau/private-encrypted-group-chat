@@ -1,4 +1,4 @@
-package src;
+package src.Client;
 
 import java.io.*;
 import java.net.Socket;
@@ -6,6 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.*;
 import javax.crypto.*;
+
+import src.Converter;
+import src.RSAEncryption;
 
 /**
  * This class connects and sends messages to the server
