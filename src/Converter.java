@@ -16,6 +16,7 @@ public class Converter {
      * Method to convert a byte array to a hex string
      * @param bytes the byte array to cenvert
      * @return the conversion to string hex
+     * Code taken from Baeldung: https://www.baeldung.com/java-byte-arrays-hex-strings
      */
     public static String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder(2 * bytes.length);
@@ -32,7 +33,8 @@ public class Converter {
     /**
      * Method to convert a hex string to a byte array
      * @param s the hex string to covert
-     * @return the conversiont to byte array
+     * @return the conversion to byte array
+     * Code taken from Stackoverflow: https://stackoverflow.com/questions/140131/convert-a-string-representation-of-a-hex-dump-to-a-byte-array-using-java
      */
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();

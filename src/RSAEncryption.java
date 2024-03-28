@@ -9,13 +9,17 @@ import javax.crypto.*;
 
 /**
  * This class is to implement RSA encryption
+ * 
  * Responsabilities:
  * (1) Create paired public and private keys
  * (2) Save keys in files
  * (3) Encrypt / decrypt strings
+ * 
  * @author Anthony Arseneau
- * @version March 27, 2024
+ * @version March 28, 2024
  * Networks Project
+ * 
+ * Help from Baeldung: https://www.baeldung.com/java-rsa
  */
 public class RSAEncryption {
     // Instance variables
@@ -120,34 +124,51 @@ public class RSAEncryption {
         return publicKey;
     }
 
+    /**
+     * Method to read a private key from a file
+     * @param filePath the file path of the private key
+     * @return the private key
+     */
     public PrivateKey readPrivateKey(String filePath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        // Get the file
         File privateKeyFile = new File(filePath);
+        // Read the data
         byte[] privateKeyBytes = Files.readAllBytes(privateKeyFile.toPath());
+
+        // Save and return the private key
         setPrivateKey(privateKeyBytes);
         return privateKey;
     }
 
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
-
-    public PrivateKey getPrivateKey() {
-        return privateKey;
-    }
-
+    /**
+     * Method that sets the public key given the key in a byte array
+     * @param publicKeyBytes the byte array of the public key
+     */
     public void setPublicKey(byte[] publicKeyBytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Create a key factory for RSA
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        // Read the bytes for a public key
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        // Save the public key
         this.publicKey = keyFactory.generatePublic(publicKeySpec);
     }
 
+    /**
+     * Method that sets the private key given the key in a byte array
+     * @param privateKeyBytes the byte array of the private key
+     */
     public void setPrivateKey(byte[] privateKeyBytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Create a key factory for RSA
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        // Read the bytes for a private key
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        // Save the private key
         this.privateKey = keyFactory.generatePrivate(privateKeySpec);
     }
 
-    
+    /*
+     * Main method that will create RSA key pairs given file names to save them in
+     */
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         RSAEncryption rsaEncryption = new RSAEncryption();
         rsaEncryption.createKeyPair("Documents/server_public.key", "Documents/server_private.key");

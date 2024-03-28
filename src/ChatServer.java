@@ -59,11 +59,7 @@ public class ChatServer {
         }
     }
 
-    /**
-     * Main method to start the group chat server
-     * @param args not used
-     * @throws IOException if there is an error with the server socket
-     */
+    /********* Start Server Program *********/
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(12000); // Create a server socket on port 12000
         ChatServer chatServer = new ChatServer(serverSocket); // Create a ChatServer instance
