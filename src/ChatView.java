@@ -3,7 +3,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -48,7 +52,7 @@ public class ChatView extends JFrame {
         this.password = password;
     }
 
-    public void initialize() {
+    public void initialize() throws InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         chatClientSender = new ChatClientSender(socket, username, password);
         /********** Scroll Area **********/
         textArea = new JTextArea(10, 15);
@@ -64,7 +68,7 @@ public class ChatView extends JFrame {
         tfMessage.setBackground(LIGHT_BLUE);
         tfMessage.setDocument(new JTextFieldLimit(MAX_CHAR_MESSAGE));
 
-        MyButton btnSend = new MyButton("⇪"); // Interchangable with this symbole: ↵
+        MyButton btnSend = new MyButton("⇪"); // Nicely interchangable with this symbole: ↵
         btnSend.setForeground(Color.WHITE);
         btnSend.setFont(MAIN_FONT_BOLD);
         btnSend.setBorder(new EmptyBorder(1, 0, 3, 0));
@@ -119,6 +123,7 @@ public class ChatView extends JFrame {
         //setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
+                chatClientSender.sendMessage(username + " has left the chat");
                 chatClientSender.sendMessage("--stop connection--");
                 chatClientSender.closeAll();
                 dispose();
@@ -129,15 +134,20 @@ public class ChatView extends JFrame {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         setMaximumSize(new Dimension(MAX_WINDOW_WIDTH, MAX_WINDOW_HEIGHT));
-        setVisible(true);
+        setVisible(false);
         getRootPane().setDefaultButton(btnSend);
+    }
+
+    public void destroy() {
+        chatClientSender.closeAll();
+        dispose();
     }
 
     public void addText(String message) {
         textArea.append(message + "\n\r");
     }
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         ChatView chatView = new ChatView(new Socket("127.0.0.1", 12000), "user1", "password123");
         chatView.initialize();
     }
