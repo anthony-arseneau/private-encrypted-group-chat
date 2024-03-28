@@ -79,23 +79,9 @@ public class ChatClientHandler implements Runnable {
         } catch (IOException e) {
             // Error handling
             closeAll(socket, bufferedReader, bufferedWriter);
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            // TODO Auto-generated catch block
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException |
+        NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
+            
             e.printStackTrace();
         }
     }
@@ -106,7 +92,10 @@ public class ChatClientHandler implements Runnable {
         while (socket.isConnected()) {
             try {
                 messageFromClient = bufferedReader.readLine();
-                if (messageFromClient.equals("--stop connection--")) {
+                if (messageFromClient == null) {
+                    removeClientHandler();
+                }
+                else if (messageFromClient.equals("--stop connection--")) {
                     removeClientHandler();
                 }
                 else {
