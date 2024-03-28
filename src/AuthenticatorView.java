@@ -1,6 +1,13 @@
 package src;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -54,7 +61,7 @@ public class AuthenticatorView extends JFrame {
         formPanel.add(lbPassword);
         formPanel.add(tfPassword);
 
-        /********** Welcome Label **********/
+        /********** Verifying Label **********/
         lbVerifying = new JLabel("", SwingConstants.CENTER);
         lbVerifying.setFont(MAIN_FONT_BOLD);
 
@@ -83,7 +90,15 @@ public class AuthenticatorView extends JFrame {
                 String username = tfUsername.getText();
                 String password = tfPassword.getText();
                 lbVerifying.setText("Verifying credentials...");
-                ChatClientListener chatClientListener = new ChatClientListener(username, password);
+
+                try {
+                    ChatClientListener chatClientListener = new ChatClientListener(username, password);
+                    chatClientListener.listenForMessages();
+                } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException
+                        | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
                 dispose(); // removes window
                 //chatClient.requestAccess();
             }
@@ -113,13 +128,6 @@ public class AuthenticatorView extends JFrame {
         setVisible(true);
     }
 
-    /*
-    public void requestAccess(String username, String password) {
-        ChatClient chatClient = new ChatClient(username, password);
-        chatClient.listenForMessages();
-        ChatView chatView = new ChatView(chatClient);
-    }
-    */ 
     public static void main(String[] args) {
         AuthenticatorView clientFrame = new AuthenticatorView();
         clientFrame.initialize();

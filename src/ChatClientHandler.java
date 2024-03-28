@@ -2,8 +2,14 @@ package src;
 
 import java.io.*;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * This class is for handling all the clients that are connected to the server.
@@ -35,28 +41,63 @@ public class ChatClientHandler implements Runnable {
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // Read incoming messages
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); // Write and send messages
 
-            String[] clientCredentials = bufferedReader.readLine().split(" ");
+            /* RSA decryption */
+            RSAEncryption rsaEncryptionServer = new RSAEncryption();
+            rsaEncryptionServer.readPrivateKey("Documents/server_private.key");
+
+            String encryptedClientCredentials = bufferedReader.readLine();
+
+            String[] clientCredentials = (rsaEncryptionServer.decrypt(encryptedClientCredentials)).split(" ");
+
             String username = clientCredentials[0];
             String password = clientCredentials[1];
 
+            RSAEncryption rsaEncryptionClient = new RSAEncryption();
+            rsaEncryptionClient.readPublicKey("Documents/public.key");
+
             Whitelist whitelist = new Whitelist();
             if (!whitelist.validUser(username, password)) {
-                bufferedWriter.write("Invalid Credentials");
+                String encryptedResponse = rsaEncryptionClient.encrypt("N");
+                //System.out.println("Sending: N as " + encryptedResponse);
+                bufferedWriter.write(encryptedResponse);
+                bufferedWriter.newLine();
                 bufferedWriter.flush();
                 System.out.println("New client disconnected due to invalid credentials");
                 closeAll(socket, bufferedReader, bufferedWriter);
             }
             else {
-                bufferedWriter.write("Correct credentials");
+                String encryptedResponse = rsaEncryptionClient.encrypt("Y");
+                //System.out.println("Sending: Y as " + encryptedResponse);
+                bufferedWriter.write(encryptedResponse);
+                bufferedWriter.newLine();
                 bufferedWriter.flush();
                 chatClientUserName = username;
                 chatClientHandlers.add(this);
                 System.out.println("New client successfully connected to the groupchat");
-                broadCastMessage(chatClientUserName + " has entered the chat!");
+                //broadCastMessage(chatClientUserName + " has entered the chat!");
             }
+
         } catch (IOException e) {
             // Error handling
             closeAll(socket, bufferedReader, bufferedWriter);
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -106,7 +147,6 @@ public class ChatClientHandler implements Runnable {
     public void removeClientHandler() {
         if (chatClientHandlers.contains(this)) {
             chatClientHandlers.remove(this); // Remove this current client
-            broadCastMessage(chatClientUserName + " has left the chat");
         }
     }
 

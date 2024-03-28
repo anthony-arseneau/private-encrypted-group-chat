@@ -1,5 +1,13 @@
 package src;
 import java.net.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 import java.io.*;
 
 /**
@@ -13,19 +21,29 @@ public class ChatClientListener {
     private Socket socket; // The socket of the client is using to transfer data
     private BufferedReader bufferedReader; // Read the received messages from server
     private ChatView chatView;
+    private RSAEncryption rsaEncryptionClient;
 
     /**
      * Constructor
      * @param socket the socket of the client to transfer information
      * @param username the username of this client
+     * @throws InvalidKeySpecException 
+     * @throws NoSuchAlgorithmException 
+     * @throws BadPaddingException 
+     * @throws IllegalBlockSizeException 
+     * @throws NoSuchPaddingException 
+     * @throws InvalidKeyException 
      */
-    public ChatClientListener(String username, String password) {
+    public ChatClientListener(String username, String password) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         try {
             socket = new Socket("127.0.0.1", 12000); // Current IP address is local for testing
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            /* RSA decryption */
+            rsaEncryptionClient = new RSAEncryption();
+            rsaEncryptionClient.readPublicKey("Documents/public.key");
+            rsaEncryptionClient.readPrivateKey("Documents/private.key");
             chatView = new ChatView(socket, username, password);
             chatView.initialize();
-            listenForMessages();
         } catch (IOException e) {
             // Error handling
             closeAll(socket, bufferedReader);
@@ -34,31 +52,44 @@ public class ChatClientListener {
 
     /**
      * Method to listen for incomming messages
+     * @throws InvalidKeySpecException 
+     * @throws NoSuchAlgorithmException 
      */
-    public void listenForMessages() throws IOException {
+    public void listenForMessages() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String response = null;
                 try {
-                    while (socket.isConnected() && response == null) {
-                        response = bufferedReader.readLine();
+                    System.out.println("here1");
+                    String encryptedResponse = null;
+                    while (socket.isConnected() && encryptedResponse == null) {
+                        encryptedResponse = bufferedReader.readLine();
                     }
+                    System.out.println("here2");
+                    //System.out.println("responseHex: " + responseHex);
+                    /* RSA decryption */
+                    System.out.println("The encrypted response is: " + encryptedResponse);
+                    String response = rsaEncryptionClient.decrypt(encryptedResponse);
+                    System.out.println("The response is: " + response);
 
-                    if (response.equals("Invalid Credentials")) {
+                    if (response.equals("N")) {
+                        InvalidView invalidView = new InvalidView();
+                        invalidView.initialize();
                         System.out.println("Invalid Credentials");
-                        chatView.addText(response);
+                        chatView.destroy();
                         closeAll(socket, bufferedReader);
                     }
                     else {
+                        chatView.setVisible(true);
                         String messageFromGroupChat;
                         while (socket.isConnected()) {
                             messageFromGroupChat = bufferedReader.readLine();
                             chatView.addText(messageFromGroupChat);
                         } 
                     }
-                } catch (IOException e) {
+                } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
                     // Error handling
+                    e.printStackTrace();
                     closeAll(socket, bufferedReader);
                 }
             }
