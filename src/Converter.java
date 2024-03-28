@@ -1,10 +1,26 @@
 package src;
 
+/**
+ * This class performs coversions between hex strings and byte arrays
+ * 
+ * Responsabilities:
+ * (1) Convert a byte array to a hex string
+ * (2) Convert a hex string to byte array
+ * 
+ * @author Anthony Arseneau
+ * @version March 28, 2024
+ * Networks project
+ */
 public class Converter {
-    public static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
+    /**
+     * Method to convert a byte array to a hex string
+     * @param bytes the byte array to cenvert
+     * @return the conversion to string hex
+     */
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xff & bytes[i]);
             if(hex.length() == 1) {
                 hexString.append('0');
             }
@@ -13,6 +29,11 @@ public class Converter {
         return hexString.toString();
     }
 
+    /**
+     * Method to convert a hex string to a byte array
+     * @param s the hex string to covert
+     * @return the conversiont to byte array
+     */
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];

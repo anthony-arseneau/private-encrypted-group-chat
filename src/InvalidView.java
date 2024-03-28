@@ -7,12 +7,14 @@ import javax.swing.border.*;
 
 /**
  * This class is for the invalid credentials GUI message that users get when putting wrong credentials
+ * 
  * Responsibilities:
  * (1) Pop up a window to show the user they gave invalid credentials
  * (2) Give the option to stop the application
  * (3) Give the option to retry to give correct credentials
+ * 
  * @author Anthony Arseneau
- * @version March 27, 2024
+ * @version March 28, 2024
  * Networks project
  */
 public class InvalidView extends JFrame {

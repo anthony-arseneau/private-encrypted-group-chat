@@ -2,33 +2,33 @@ package src;
 
 import java.io.*;
 import java.net.Socket;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 
 /**
- * This class is for handling all the clients that are connected to the server.
- * It holds a list of all clients that are connected, so that the server can send
- * messages from one client to the other clients. It operates on the server side 
- * of the network.
+ * This class is for handling all the clients that are connected to the server. It holds a list of all clients that are connected,
+ * so that the server can send messages from one client to the other clients. It operates on the server side of the network.
+ * 
+ * Responsabilities:
+ * (1) Add client to a list of all connections when they successfully connect
+ * (2) Verify the credentials of new connections (accepts or refuses them access to chat)
+ * (3) Broadcast incoming messages from any user to the rest
+ * (4) Remove client from connection list when they leave
+ * 
  * @author Anthony Arseneau
- * @vesion March 4, 2024
+ * @vesion March 28, 2024
  * Networks project
  */
 public class ChatClientHandler implements Runnable {
+    // Class variables
+    public static ArrayList<ChatClientHandler> chatClientHandlers = new ArrayList<>(); // List of all connected client handlers
+
     // Instance variables
     private Socket socket; // The socket the server is using to transfer data
     private BufferedReader bufferedReader; // Read the received messages from that client
     private BufferedWriter bufferedWriter; // Write the received messages from that client to the other clients
-    private String chatClientUserName; // The username of that client
-
-    // Class variables
-    public static ArrayList<ChatClientHandler> chatClientHandlers = new ArrayList<>(); // List of all connected client handlers
 
     /**
      * Constructor
@@ -71,7 +71,6 @@ public class ChatClientHandler implements Runnable {
                 bufferedWriter.write(encryptedResponse);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
-                chatClientUserName = username;
                 chatClientHandlers.add(this);
                 System.out.println("New client successfully connected to the groupchat");
                 //broadCastMessage(chatClientUserName + " has entered the chat!");
@@ -128,12 +127,10 @@ public class ChatClientHandler implements Runnable {
     public void broadCastMessage(String messageToSend) {
         for (ChatClientHandler chatClientHandler : chatClientHandlers) { // For every connected client on the server
             try {
-                //if (!chatClientHandler.chatClientUserName.equals(this.chatClientUserName)) { // If not this current client // Actually want to send back to sender
                 // Send message to all other clients
                 chatClientHandler.bufferedWriter.write(messageToSend);
                 chatClientHandler.bufferedWriter.newLine();
                 chatClientHandler.bufferedWriter.flush();
-                //}
             } catch (IOException e) {
                 // Error handling
                 closeAll(socket, bufferedReader, bufferedWriter);

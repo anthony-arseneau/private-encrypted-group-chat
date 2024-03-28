@@ -1,20 +1,24 @@
 package src;
+
 import java.awt.*;
 import java.awt.event.*;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- * This class is for the authentication window for clients to first connect to the group chat
+ * This class is the authentication window for clients when they first connect to the group chat
+ * 
+ * Responsabilities:
+ * (1) Prompt user for username and password
+ * (2) Clear text fields with a button
+ * (3) Authenticate credentials with the server
+ * (4) Create a chat client listener that kickstarts the client connection to the server
+ * 
  * @author Anthony Arseneau
- * @version March 5, 2024
+ * @version March 28, 2024
  * Networks project
  */
 public class AuthenticatorView extends JFrame {
@@ -32,27 +36,37 @@ public class AuthenticatorView extends JFrame {
     private static final int BORDER_PADDING = 10; // Border padding around the main pane
 
     // Instance variables
-    private JTextField tfUsername, tfPassword; // Textfield for the username and password input
+    private JTextField tfUsername; // Text field for the username input
+    private JPasswordField tfPassword; // Password field for the password input
     private JLabel lbVerifying; // Verifying label
 
+    /**
+     * Method that initializes the components of the GUI
+     */
     public void initialize() {
         /********** Credentials Panel **********/
+        // Username label
         JLabel lbUsername = new JLabel("Enter username: ");
         lbUsername.setFont(MAIN_FONT_BOLD);
 
+        // Username textfield
         tfUsername = new JTextField();
         tfUsername.setFont(TF_FONT);
         tfUsername.setBackground(LIGHT_GREY);
         tfUsername.setDocument(new JTextFieldLimit(MAX_CHAR_USERNAME));
 
+        // Password label
         JLabel lbPassword = new JLabel("Enter password: ");
         lbPassword.setFont(MAIN_FONT_BOLD);
 
-        tfPassword = new JTextField();
+        // Password text field
+        tfPassword = new JPasswordField();
         tfPassword.setFont(TF_FONT);
         tfPassword.setBackground(LIGHT_GREY);
+        //tfPassword.setEchoChar('*'); // Uncomment to have stars instead of dots for the password input
         tfPassword.setDocument(new JTextFieldLimit(MAX_CHAR_PASSWORD));
 
+        /********* Form Panel **********/
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(4, 1, 5, 2));
         formPanel.setBackground(Color.WHITE);
@@ -66,49 +80,62 @@ public class AuthenticatorView extends JFrame {
         lbVerifying.setFont(MAIN_FONT_BOLD);
 
         /********** Buttons Panel *********/
+        // Clear button
         MyButton btnClear = new MyButton("Clear");
         btnClear.setFont(MAIN_FONT);
         btnClear.setOpaque(true);
         btnClear.setRolloverEnabled(true);
+        // Button action
         btnClear.addActionListener(new ActionListener() {
+            // Clear the text fields
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 tfUsername.setText("");
                 tfPassword.setText("");
                 lbVerifying.setText("");
             }
         });
 
+        // Submit button
         MyButton btnSubmit = new MyButton("Submit");
         btnSubmit.setFont(MAIN_FONT);
         btnSubmit.setOpaque(true);
         btnSubmit.setRolloverEnabled(true);
+        // Button action
         btnSubmit.addActionListener(new ActionListener() {
+            // Get the credentials from the text fields and verify with server
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Get username
                 String username = tfUsername.getText();
-                String password = tfPassword.getText();
+                // Get password
+                char[] passwordChars = tfPassword.getPassword();
+                String password = "";
+                for (int i = 0; i < passwordChars.length; i++) { // Put all chars in a string
+                    password = password + passwordChars[i];
+                }
                 lbVerifying.setText("Verifying credentials...");
 
+                // Create a chat client listener with the given credentials
                 try {
                     ChatClientListener chatClientListener = new ChatClientListener(username, password);
                     chatClientListener.listenForMessages();
-                } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException
-                        | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e1) {
-                    // TODO Auto-generated catch block
+                } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e1) {
                     e1.printStackTrace();
                 }
-                dispose(); // removes window
-                //chatClient.requestAccess();
+
+                // Remove window
+                dispose();
             }
         });
 
+        // Buttons Panel
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridLayout(1, 2, 5, 5));
         buttonsPanel.add(btnClear);
         buttonsPanel.add(btnSubmit);
 
+        // Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setBorder(new EmptyBorder(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
         mainPanel.setLayout(new BorderLayout());
@@ -119,6 +146,7 @@ public class AuthenticatorView extends JFrame {
 
         add(mainPanel);
 
+        // Set window aspects
         setTitle("SPGC Authenticator");
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -128,6 +156,7 @@ public class AuthenticatorView extends JFrame {
         setVisible(true);
     }
 
+    /********* Start Client Program *********/
     public static void main(String[] args) {
         AuthenticatorView clientFrame = new AuthenticatorView();
         clientFrame.initialize();
