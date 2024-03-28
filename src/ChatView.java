@@ -38,7 +38,6 @@ public class ChatView extends JFrame {
     // Instance variables
     private JTextField tfMessage; // Textfield for user to write their message
     private JTextArea textArea; // Area where messages will show up
-    private boolean availableMessage; 
     private String message;
     private ChatClientSender chatClientSender;
     private Socket socket;
