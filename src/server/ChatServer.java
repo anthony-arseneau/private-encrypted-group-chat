@@ -1,5 +1,11 @@
 package src.server;
 import java.net.*;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.SecretKey;
+
+import src.Ciphers.AESCipher;
+
 import java.io.*;
 
 /**
@@ -14,13 +20,18 @@ import java.io.*;
 public class ChatServer {
     // Instance variables
     private ServerSocket serverSocket; // The socket the server is using to transfer data
+    private AESCipher aesCipher;
 
     /**
      * Constructor
      * @param serverSocket the socket of the server to transfer information
+     * @throws NoSuchAlgorithmException 
      */
-    public ChatServer(ServerSocket serverSocket) {
+    public ChatServer(ServerSocket serverSocket) throws NoSuchAlgorithmException {
         this.serverSocket = serverSocket;
+        this.aesCipher = new AESCipher();
+        this.aesCipher.generateKey();
+        this.aesCipher.generateIv();
     }
 
     /**
@@ -32,7 +43,7 @@ public class ChatServer {
                 // Accept new clients that want to connect to the server
                 Socket socket = serverSocket.accept();
                 System.out.println("A new client has been connected");
-                ChatClientHandler chatClientHandler = new ChatClientHandler(socket);
+                ChatClientHandler chatClientHandler = new ChatClientHandler(socket, aesCipher);
 
                 // Start a new thread for the new connected client
                 Thread thread = new Thread(chatClientHandler);
@@ -60,7 +71,7 @@ public class ChatServer {
     }
 
     /********* Start Server Program *********/
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         ServerSocket serverSocket = new ServerSocket(12000); // Create a server socket on port 12000
         ChatServer chatServer = new ChatServer(serverSocket); // Create a ChatServer instance
         chatServer.startServer(); // Start the server

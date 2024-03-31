@@ -3,10 +3,15 @@ package src.Client;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
 import javax.crypto.*;
 import javax.swing.*;
 import javax.swing.border.*;
+
+import src.Ciphers.AESCipher;
 
 /**
  * This class is for the chat window for clients to communicate with other authorized clients
@@ -44,6 +49,7 @@ public class ChatView extends JFrame {
     private Socket socket;
     private String username;
     private String password;
+    private AESCipher aesCipher;
 
     /**
      * Constructor
@@ -57,7 +63,7 @@ public class ChatView extends JFrame {
         this.password = password;
     }
 
-    public void initialize() throws InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    public void initialize() throws InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
         // Create a chat client sender to be able to send messages
         chatClientSender = new ChatClientSender(socket, username, password);
 
@@ -99,7 +105,13 @@ public class ChatView extends JFrame {
                 // Get the message in the textfield
                 message = tfMessage.getText();
                 if(!message.isBlank()) { // Only send if non-empty
-                    chatClientSender.sendMessage(username + ": " + message);
+                    try {
+                        chatClientSender.sendMessage(aesCipher.encrypt(username + ": " + message));
+                    } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                            | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
                 // Make the text field empty
                 tfMessage.setText("");
@@ -140,14 +152,19 @@ public class ChatView extends JFrame {
         // When clicking X to leave:
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
-                // Send to the group chat that the user left
-                chatClientSender.sendMessage(username + " has left the chat");
-                // Tell the server to close connection
-                chatClientSender.sendMessage("--stop connection--");
+                try {
+                    // Send to the group chat that the user left
+                    chatClientSender.sendMessage(aesCipher.encrypt(username + " has left the chat"));
+                    // Tell the server to close connection
+                    chatClientSender.sendMessage(aesCipher.encrypt("--stop connection--"));
+                } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                        | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                }
                 destroy(); // End client process
                 System.exit(0); // Stop process
             }
-           });
+        });
         // Set window layout
         setLocationRelativeTo(null);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -172,6 +189,12 @@ public class ChatView extends JFrame {
      */
     public void addText(String message) {
         textArea.append(message + "\n\r");
+    }
+
+    public void setAESCipher(AESCipher aesCipher) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
+        chatClientSender.setAESCipher(aesCipher);
+        chatClientSender.sendMessage(aesCipher.encrypt(username + " has entered the chat"));
+        this.aesCipher = aesCipher;
     }
     
     /*

@@ -6,8 +6,10 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 
-import src.RSAEncryption;
+import src.Ciphers.AESCipher;
+import src.Ciphers.RSACipher;
 
 /**
  * This class is for handling all the clients that are connected to the server. It holds a list of all clients that are connected,
@@ -29,6 +31,7 @@ public class ChatClientHandler implements Runnable {
 
     // Instance variables
     private Socket socket; // The socket the server is using to transfer data
+    private AESCipher aesCipher;
     private BufferedReader bufferedReader; // Read the received messages from that client
     private BufferedWriter bufferedWriter; // Write the received messages from that client to the other clients
 
@@ -37,29 +40,33 @@ public class ChatClientHandler implements Runnable {
      * @param socket the socket of the server to transfer information
      * @throws NoSuchAlgorithmException 
      */
-    public ChatClientHandler(Socket socket) {
+    public ChatClientHandler(Socket socket, AESCipher aesCipher) {
         try {
             this.socket = socket;
+            this.aesCipher = aesCipher;
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // Read incoming messages
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); // Write and send messages
 
             /* RSA decryption */
-            RSAEncryption rsaEncryptionServer = new RSAEncryption();
-            rsaEncryptionServer.readPrivateKey("Documents/server_private.key");
+            RSACipher serverRSACipher = new RSACipher();
+            serverRSACipher.readPrivateKey("Documents/server_private.key");
 
-            String encryptedClientCredentials = bufferedReader.readLine();
+            String[] connectionMessage = bufferedReader.readLine().split(" ");
 
-            String[] clientCredentials = (rsaEncryptionServer.decrypt(encryptedClientCredentials)).split(" ");
+            String encryptedClientCredentials = connectionMessage[0];
+            String clientPublicKey = connectionMessage[1];
+
+            String[] clientCredentials = (serverRSACipher.decrypt(encryptedClientCredentials)).split(" ");
 
             String username = clientCredentials[0];
             String password = clientCredentials[1];
 
-            RSAEncryption rsaEncryptionClient = new RSAEncryption();
-            rsaEncryptionClient.readPublicKey("Documents/public.key");
+            RSACipher clientRSACipher = new RSACipher();
+            clientRSACipher.setPublicKey(Base64.getDecoder().decode(clientPublicKey));
 
             Whitelist whitelist = new Whitelist();
             if (!whitelist.validUser(username, password)) {
-                String encryptedResponse = rsaEncryptionClient.encrypt("N");
+                String encryptedResponse = clientRSACipher.encrypt("N");
                 //System.out.println("Sending: N as " + encryptedResponse);
                 bufferedWriter.write(encryptedResponse);
                 bufferedWriter.newLine();
@@ -68,8 +75,11 @@ public class ChatClientHandler implements Runnable {
                 closeAll(socket, bufferedReader, bufferedWriter);
             }
             else {
-                String encryptedResponse = rsaEncryptionClient.encrypt("Y");
-                //System.out.println("Sending: Y as " + encryptedResponse);
+                SecretKey secretKey = this.aesCipher.getSecretKey();
+                String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+                IvParameterSpec iv = this.aesCipher.getIV();
+                String encoded_IV = Base64.getEncoder().encodeToString(iv.getIV());
+                String encryptedResponse = clientRSACipher.encrypt(encodedKey + " " + encoded_IV);
                 bufferedWriter.write(encryptedResponse);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
@@ -83,7 +93,6 @@ public class ChatClientHandler implements Runnable {
             closeAll(socket, bufferedReader, bufferedWriter);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException |
         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e) {
-            
             e.printStackTrace();
         }
     }
@@ -97,13 +106,13 @@ public class ChatClientHandler implements Runnable {
                 if (messageFromClient == null) {
                     removeClientHandler();
                 }
-                else if (messageFromClient.equals("--stop connection--")) {
+                else if (aesCipher.decrypt(messageFromClient).equals("--stop connection--")) {
                     removeClientHandler();
                 }
                 else {
                     broadCastMessage(messageFromClient);
                 }
-            } catch (IOException e) {
+            } catch (IOException | InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
                 closeAll(socket, bufferedReader, bufferedWriter);
                 break;
             }

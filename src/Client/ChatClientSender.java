@@ -5,10 +5,14 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.*;
+import java.util.Arrays;
+import java.util.Base64;
+
 import javax.crypto.*;
 
 import src.Converter;
-import src.RSAEncryption;
+import src.Ciphers.AESCipher;
+import src.Ciphers.RSACipher;
 
 /**
  * This class connects and sends messages to the server
@@ -27,14 +31,16 @@ public class ChatClientSender {
     private Socket socket; // The socket of the client is using to transfer data
     private BufferedWriter bufferedWriter; // Write messages to the server
     private MessageDigest digest; // SHA-256 message digest
+    private AESCipher aesCipher;
 
     /**
      * Constructor
      * @param socket the same socket the listener is using to connect to the server
      * @param username the username of the client
      * @param password the passwaord of the client
+     * @throws InvalidAlgorithmParameterException 
      */
-    public ChatClientSender(Socket socket, String username, String password) throws InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    public ChatClientSender(Socket socket, String username, String password) throws InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
         try {
             // Get SHA-256 hash function
             digest = MessageDigest.getInstance("SHA-256");
@@ -50,22 +56,21 @@ public class ChatClientSender {
             this.socket = socket; // Current IP address is local for testing
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            // Get RSA encryption
-            RSAEncryption rsaEncryptionServer = new RSAEncryption();
-            rsaEncryptionServer.readPublicKey("Documents/server_public.key");
+            // Get server RSA encryption
+            RSACipher serverRSACipher = new RSACipher();
+            serverRSACipher.readPublicKey("Documents/server_public.key");
+
+            // Get client RSA encryption
+            RSACipher clientRSACipher = new RSACipher();
+            clientRSACipher.readPublicKey("Documents/public.key");
 
             // Set the message for sending the creadentials
             String privateMessage = usernameHashedHex + " " + passwordHashedHex;
             // Encrypt the message with the server public key
-            String encryptedMessage = rsaEncryptionServer.encrypt(privateMessage);
+            String encryptedMessage = serverRSACipher.encrypt(privateMessage);
 
             // Send the message to the server
-            sendMessage(encryptedMessage);
-
-            // If there a connection, send to the groupchat that this user joined the conversation
-            if (socket.isConnected()) {
-                sendMessage(username + " has joined the chat");
-            }
+            sendMessage(encryptedMessage + " " + Base64.getEncoder().encodeToString(clientRSACipher.getPublicKey().getEncoded()));
 
         } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
             // Error handling
@@ -108,5 +113,9 @@ public class ChatClientSender {
             // Error handling
             e.printStackTrace();
         }
+    }
+
+    public void setAESCipher(AESCipher aesCipher) {
+        this.aesCipher = aesCipher;
     }
 }

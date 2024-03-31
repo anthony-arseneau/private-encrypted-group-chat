@@ -122,8 +122,10 @@ public class AuthenticatorView extends JFrame {
                     chatClientListener.listenForMessages();
                 } catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e1) {
                     e1.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
                 }
-
                 // Remove window
                 dispose();
             }
