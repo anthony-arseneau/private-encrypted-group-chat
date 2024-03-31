@@ -1,11 +1,15 @@
-package src;
+package src.Ciphers;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.*;
 import java.security.spec.*;
+import java.util.Arrays;
+
 import javax.crypto.*;
+
+import src.Converter;
 
 /**
  * This class is to implement RSA encryption
@@ -21,7 +25,7 @@ import javax.crypto.*;
  * 
  * Help from Baeldung: https://www.baeldung.com/java-rsa
  */
-public class RSAEncryption {
+public class RSACipher {
     // Instance variables
     private PublicKey publicKey;
     private PrivateKey privateKey;
@@ -166,11 +170,15 @@ public class RSAEncryption {
         this.privateKey = keyFactory.generatePrivate(privateKeySpec);
     }
 
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
     /*
      * Main method that will create RSA key pairs given file names to save them in
      */
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        RSAEncryption rsaEncryption = new RSAEncryption();
+        RSACipher rsaEncryption = new RSACipher();
         rsaEncryption.createKeyPair("Documents/server_public.key", "Documents/server_private.key");
     }
 }
