@@ -1,11 +1,8 @@
 package src.server;
+
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.SecretKey;
-
 import src.Ciphers.AESCipher;
-
 import java.io.*;
 
 /**

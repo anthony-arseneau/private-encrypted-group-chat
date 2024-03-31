@@ -5,10 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.*;
 import java.security.spec.*;
-import java.util.Arrays;
-
 import javax.crypto.*;
-
 import src.Converter;
 
 /**
