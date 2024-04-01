@@ -1,4 +1,4 @@
-package src.server;
+package server;
 
 import java.io.*;
 import java.net.Socket;
@@ -8,8 +8,8 @@ import java.util.*;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 
-import src.Ciphers.AESCipher;
-import src.Ciphers.RSACipher;
+import ciphers.AESCipher;
+import ciphers.RSACipher;
 
 /**
  * This class is for handling all the clients that are connected to the server. It holds a list of all clients that are connected,

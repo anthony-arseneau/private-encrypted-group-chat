@@ -1,4 +1,4 @@
-package src.Ciphers;
+package ciphers;
 
 import java.io.File;
 import java.io.FileOutputStream;

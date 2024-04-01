@@ -1,8 +1,10 @@
-package src.server;
+package server;
 
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
-import src.Ciphers.AESCipher;
+
+import ciphers.AESCipher;
+
 import java.io.*;
 
 /**

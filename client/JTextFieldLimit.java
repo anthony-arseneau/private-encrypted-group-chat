@@ -1,4 +1,4 @@
-package src.Client;
+package client;
 
 import javax.swing.text.*;
 

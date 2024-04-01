@@ -1,4 +1,4 @@
-package src.Ciphers;
+package ciphers;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.security.*;
 import java.security.spec.*;
 import javax.crypto.*;
-import src.Converter;
+import conversion.Converter;
 
 /**
  * This class is to implement RSA encryption

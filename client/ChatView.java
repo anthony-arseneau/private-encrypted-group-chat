@@ -1,4 +1,4 @@
-package src.Client;
+package client;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -11,7 +11,7 @@ import javax.crypto.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import src.Ciphers.AESCipher;
+import ciphers.AESCipher;
 
 /**
  * This class is for the chat window for clients to communicate with other authorized clients
@@ -192,7 +192,6 @@ public class ChatView extends JFrame {
     }
 
     public void setAESCipher(AESCipher aesCipher) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
-        chatClientSender.setAESCipher(aesCipher);
         chatClientSender.sendMessage(aesCipher.encrypt(username + " has entered the chat"));
         this.aesCipher = aesCipher;
     }

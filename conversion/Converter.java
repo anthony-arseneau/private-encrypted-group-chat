@@ -1,4 +1,5 @@
-package src;
+package conversion;
+
 
 /**
  * This class performs coversions between hex strings and byte arrays

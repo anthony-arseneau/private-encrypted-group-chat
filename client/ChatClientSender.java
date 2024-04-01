@@ -1,4 +1,4 @@
-package src.Client;
+package client;
 
 import java.io.*;
 import java.net.Socket;
@@ -9,9 +9,8 @@ import java.util.Base64;
 
 import javax.crypto.*;
 
-import src.Converter;
-import src.Ciphers.AESCipher;
-import src.Ciphers.RSACipher;
+import ciphers.RSACipher;
+import conversion.Converter;
 
 /**
  * This class connects and sends messages to the server
@@ -30,7 +29,6 @@ public class ChatClientSender {
     private Socket socket; // The socket of the client is using to transfer data
     private BufferedWriter bufferedWriter; // Write messages to the server
     private MessageDigest digest; // SHA-256 message digest
-    private AESCipher aesCipher;
 
     /**
      * Constructor
@@ -112,9 +110,5 @@ public class ChatClientSender {
             // Error handling
             e.printStackTrace();
         }
-    }
-
-    public void setAESCipher(AESCipher aesCipher) {
-        this.aesCipher = aesCipher;
     }
 }
