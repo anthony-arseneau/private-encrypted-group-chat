@@ -6,9 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.*;
 import java.util.Base64;
-
 import javax.crypto.*;
-
 import tools.ciphers.RSACipher;
 import tools.conversion.Converter;
 

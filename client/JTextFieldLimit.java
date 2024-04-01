@@ -4,6 +4,7 @@ import javax.swing.text.*;
 
 /**
  * Class that enforces a text field to not exceed the given character limit
+ * 
  * @author Anthony Arseneau
  * @version March 28, 2024
  * Networks project

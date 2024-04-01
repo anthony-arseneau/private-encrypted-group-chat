@@ -54,18 +54,34 @@ class MyButton extends JButton {
     public void setContentAreaFilled(boolean b) {
     }
 
+    /**
+     * Getter method to get the background color
+     * @return the background color
+     */
     public Color getHoverBackgroundColor() {
         return hoverBackgroundColor;
     }
 
+    /**
+     * Method to set the background color
+     * @param hoverBackgroundColor the color of the background to set
+     */
     public void setHoverBackgroundColor(Color hoverBackgroundColor) {
         this.hoverBackgroundColor = hoverBackgroundColor;
     }
 
+    /**
+     * Getter method to get the color of the background when pressed
+     * @return
+     */
     public Color getPressedBackgroundColor() {
         return pressedBackgroundColor;
     }
 
+    /**
+     * Method to set the color of the background when set
+     * @param pressedBackgroundColor
+     */
     public void setPressedBackgroundColor(Color pressedBackgroundColor) {
         this.pressedBackgroundColor = pressedBackgroundColor;
     }

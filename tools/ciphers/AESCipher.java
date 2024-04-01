@@ -53,18 +53,31 @@ public class AESCipher {
         return this.iv;
     }
 
+    /**
+     * Method to write secret key to file
+     * @param secretFilePath the file to save the private key
+     */
     public void writeSecretKey(String secretFilePath) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(secretFilePath)) {
             fos.write(secretKey.getEncoded()); // Write the bits to file
         }
     }
 
+    /**
+     * Method to write the Initialization (IV) Vector to file
+     * @param ivFilePath the file to save the IV
+     */
     public void writeIV(String ivFilePath) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(ivFilePath)) {
             fos.write(iv.getIV()); // Write the bits to file
         }
     }
 
+    /**
+     * Method to read the secret key from file
+     * @param filePath the file where the secret key is
+     * @return the secret key
+     */
     public SecretKey readSecretKey(String filePath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         // Get the file
         File secretKeyFile = new File(filePath);
@@ -77,63 +90,78 @@ public class AESCipher {
 
     /**
      * Method to encrypt message
-     * @param input
-     * @param key
-     * @param iv
-     * @return
+     * @param input message to encrypt
+     * @return the encrypteed message
      */
     public String encrypt(String input) 
     throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        // Get cipher instance
         Cipher cipher = Cipher.getInstance(algorithm);
+        // Encrypt mode on
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+        // Encrypt message
         byte[] cipherText = cipher.doFinal(input.getBytes());
+        // Return String value of encrypted message
         return Base64.getEncoder().encodeToString(cipherText);
     }
 
     /**
      * Method to decrypt message
-     * @param cipherText
-     * @param key
-     * @param iv
-     * @return
+     * @param cipherText the encrypted message to decrypt
+     * @return the decrypted message
      */
     public String decrypt(String cipherText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        // Get cipher instance
         Cipher cipher = Cipher.getInstance(algorithm);
+        // Decrypt mode on
         cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
-        byte[] plainText = cipher.doFinal(Base64.getDecoder()
-            .decode(cipherText));
+        // Decrypt message
+        byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+        // Return String value of decrypted message
         return new String(plainText);
     }
 
+    /**
+     * Getter method to get the secret key
+     * @return the secret key
+     */
     public SecretKey getSecretKey() {
         return this.secretKey;
     }
 
+    /**
+     * Getter method to get the IV
+     * @return the IV
+     */
     public IvParameterSpec getIV() {
         return this.iv;
     }
 
+    /**
+     * Setter method to set the secret key
+     * @param encodedSecretKey the String value of secret key to set
+     * @return the secret key
+     */
     public SecretKey setSecretKey(String encodedSecretKey) {
+        // Get byte array value of String
         byte[] decodedKey = Base64.getDecoder().decode(encodedSecretKey);
+        // Get the secret key
         SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        // Set the key
         return this.secretKey = originalKey;
     }
 
+    /**
+     * Setter method to set the IV
+     * @param encodedIV the String value of IV to set
+     * @return the IV
+     */
     public IvParameterSpec setIV(String encodedIV) {
+        // Get byte array value of String
         byte[] decodedIV = Base64.getDecoder().decode(encodedIV);
+        // Get the IV
         IvParameterSpec originalIV = new IvParameterSpec(decodedIV);
+        // Set the IV
         return this.iv = originalIV;
-    }
-
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
-        AESCipher aesCipher = new AESCipher();
-        aesCipher.generateKey();
-        aesCipher.generateIv();
-        String privateMsg = "Hello World!";
-        System.out.println("The private message is: " + privateMsg);
-        String encryptedMsg = aesCipher.encrypt(privateMsg);
-        System.out.println("Encrypted message: " + encryptedMsg);
-        String decryptedMessage = aesCipher.decrypt(encryptedMsg);
-        System.out.println("Decrypted message: " + decryptedMessage);
     }
 }

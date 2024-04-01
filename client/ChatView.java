@@ -3,14 +3,10 @@ package client;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.Socket;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
+import java.security.*;
 import javax.crypto.*;
 import javax.swing.*;
 import javax.swing.border.*;
-
 import tools.ciphers.AESCipher;
 
 /**
@@ -44,12 +40,11 @@ public class ChatView extends JFrame {
     // Instance variables
     private JTextField tfMessage; // Textfield for user to write their message
     private JTextArea textArea; // Area where messages will show up
-    private String message;
-    private ChatClientSender chatClientSender;
-    private Socket socket;
-    private String username;
-    private String password;
-    private AESCipher aesCipher;
+    private String message; // String message in the txt field
+    private ChatClientSender chatClientSender; // Instance of the chat client sender
+    private Socket socket; // The socket that is connected to the server
+    private String username, password; // Username and password strings
+    private AESCipher aesCipher; // AES cipher to encrypt messages
 
     /**
      * Constructor
@@ -159,6 +154,7 @@ public class ChatView extends JFrame {
                     chatClientSender.sendMessage(aesCipher.encrypt("--stop connection--"));
                 } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
                         | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
+                    // Error handling
                     e.printStackTrace();
                 }
                 destroy(); // End client process
@@ -191,15 +187,14 @@ public class ChatView extends JFrame {
         textArea.append(message + "\n\r");
     }
 
+    /**
+     * Method to set the AES cipher
+     * @param aesCipher the AES cipher to set
+     */
     public void setAESCipher(AESCipher aesCipher) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
+        // Once the cipher is set, it means we have connection to the groupchat
         chatClientSender.sendMessage(aesCipher.encrypt(username + " has entered the chat"));
+        // Set the cipher instance
         this.aesCipher = aesCipher;
     }
-    
-    /*
-    public static void main(String[] args) throws IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-        ChatView chatView = new ChatView(new Socket("127.0.0.1", 12000), "user1", "password123");
-        chatView.initialize();
-    }
-    */
 }

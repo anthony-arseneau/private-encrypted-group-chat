@@ -86,16 +86,21 @@ public class ChatClientListener {
                         // Close connection
                         closeAll(socket, bufferedReader);
                     }
-                    // Else, the response is "Y", meaning "Yes":
+                    // Else, the response is something else, it means meaning "Yes" and we get the secret AES key:
                     else {
+                        // Get AES secret key and Initialization Vector (IV) message from server
                         String[] keyIV = response.split(" ");
-                        String encodedKey = keyIV[0];
-                        String encodedIV = keyIV[1];
+                        String encodedKey = keyIV[0]; // Get the encoded secret key
+                        String encodedIV = keyIV[1]; // Get the encoded IV
 
+                        // Set secret key and IV of AES cipher
                         aesCipher.setSecretKey(encodedKey);
                         aesCipher.setIV(encodedIV);
+
+                        // Save secret key and IV to files
                         aesCipher.writeSecretKey("ClientDocuments/secret_key.txt");
                         aesCipher.writeIV("ClientDocuments/iv.txt");
+                        // Set the same cipher of the chat view
                         chatView.setAESCipher(aesCipher);
 
                         // Make the chat view visible

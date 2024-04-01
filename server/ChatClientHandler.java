@@ -7,7 +7,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
-
 import tools.ciphers.*;
 
 /**
@@ -46,45 +45,61 @@ public class ChatClientHandler implements Runnable {
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // Read incoming messages
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); // Write and send messages
 
-            /* RSA decryption */
-            RSACipher serverRSACipher = new RSACipher();
-            serverRSACipher.readPrivateKey("ServerDocuments/server_private.key");
+            /* Server RSA decryption */
+            RSACipher serverRSACipher = new RSACipher(); // Get a RSA cipher
+            serverRSACipher.readPrivateKey("ServerDocuments/server_private.key"); // Read the private key
 
+            // Get the new connection message
             String[] connectionMessage = bufferedReader.readLine().split(" ");
 
+            // Get the encrypted credentials
             String encryptedClientCredentials = connectionMessage[0];
+            // Get the public key of the client
             String clientPublicKey = connectionMessage[1];
 
+            // Decrypt the credentials
             String[] clientCredentials = (serverRSACipher.decrypt(encryptedClientCredentials)).split(" ");
 
+            // Get the username
             String username = clientCredentials[0];
+            // Get the password
             String password = clientCredentials[1];
 
-            RSACipher clientRSACipher = new RSACipher();
-            clientRSACipher.setPublicKey(Base64.getDecoder().decode(clientPublicKey));
+            /* Client RSA encryption */
+            RSACipher clientRSACipher = new RSACipher(); // Get a RSA cipher
+            clientRSACipher.setPublicKey(Base64.getDecoder().decode(clientPublicKey)); // Read its given public key
 
+            // Get the whitelist
             Whitelist whitelist = new Whitelist();
-            if (!whitelist.validUser(username, password)) {
+            // Check the credentials
+            if (!whitelist.validUser(username, password)) { // Not a valid user
+                // Send a reply message of "No" (Invalid credentials)
                 String encryptedResponse = clientRSACipher.encrypt("N");
-                //System.out.println("Sending: N as " + encryptedResponse);
                 bufferedWriter.write(encryptedResponse);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
                 System.out.println("New client disconnected due to invalid credentials");
-                closeAll(socket, bufferedReader, bufferedWriter);
+                closeAll(socket, bufferedReader, bufferedWriter); // Close connection with client after failed authentication
             }
-            else {
+            else { // Valid user
+                // Get the AES secret key
                 SecretKey secretKey = this.aesCipher.getSecretKey();
+                // Encode it to be send as a string
                 String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+
+                // Get the AES Initialization Vector (IV)
                 IvParameterSpec iv = this.aesCipher.getIV();
+                // Encode it to be send as a string
                 String encoded_IV = Base64.getEncoder().encodeToString(iv.getIV());
+
+                // Encrypt the response using the client's public key
                 String encryptedResponse = clientRSACipher.encrypt(encodedKey + " " + encoded_IV);
+                // Send the encrypted secret key
                 bufferedWriter.write(encryptedResponse);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
                 chatClientHandlers.add(this);
                 System.out.println("New client successfully connected to the groupchat");
-                //broadCastMessage(chatClientUserName + " has entered the chat!");
             }
 
         } catch (IOException e) {
@@ -96,22 +111,27 @@ public class ChatClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Method to keep listening for incoming messages from the client
+     */
     @Override
     public void run() {
         String messageFromClient;
         while (socket.isConnected()) {
             try {
+                // Listen for incoming messages
                 messageFromClient = bufferedReader.readLine();
-                if (messageFromClient == null) {
-                    removeClientHandler();
+                if (messageFromClient == null) { // If received null message
+                    removeClientHandler(); // Remove client
                 }
-                else if (aesCipher.decrypt(messageFromClient).equals("--stop connection--")) {
-                    removeClientHandler();
+                else if (aesCipher.decrypt(messageFromClient).equals("--stop connection--")) { // If client says to stop connection
+                    removeClientHandler(); // Remove client
                 }
-                else {
-                    broadCastMessage(messageFromClient);
+                else { // Message to send to group chat
+                    broadCastMessage(messageFromClient); // broadcast message
                 }
             } catch (IOException | InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
+                // Error handling
                 closeAll(socket, bufferedReader, bufferedWriter);
                 break;
             }
