@@ -18,7 +18,7 @@ import java.util.HashMap;
  */
 public class Whitelist {
     // Class constants
-    private static final String whitelist = "Documents/whitelist.txt";
+    private static final String whitelist = "ServerDocuments/whitelist.txt";
 
     // Instance variables
     private HashMap<String, String> users;

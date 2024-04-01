@@ -49,7 +49,7 @@ public class ChatClientHandler implements Runnable {
 
             /* RSA decryption */
             RSACipher serverRSACipher = new RSACipher();
-            serverRSACipher.readPrivateKey("Documents/server_private.key");
+            serverRSACipher.readPrivateKey("ServerDocuments/server_private.key");
 
             String[] connectionMessage = bufferedReader.readLine().split(" ");
 

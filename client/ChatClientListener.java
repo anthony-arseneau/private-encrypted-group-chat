@@ -46,8 +46,8 @@ public class ChatClientListener {
 
             // Read client's RSA priavte key for decryption
             this.clientRSACipher = new RSACipher();
-            this.clientRSACipher.readPublicKey("Documents/public.key");
-            this.clientRSACipher.readPrivateKey("Documents/private.key");
+            this.clientRSACipher.readPublicKey("ClientDocuments/public.key");
+            this.clientRSACipher.readPrivateKey("ClientDocuments/private.key");
 
             this.aesCipher = new AESCipher();
 
@@ -96,8 +96,8 @@ public class ChatClientListener {
 
                         aesCipher.setSecretKey(encodedKey);
                         aesCipher.setIV(encodedIV);
-                        aesCipher.writeSecretKey("Documents/secret_key.txt");
-                        aesCipher.writeIV("Documents/iv.txt");
+                        aesCipher.writeSecretKey("ClientDocuments/secret_key.txt");
+                        aesCipher.writeIV("ClientDocuments/iv.txt");
                         chatView.setAESCipher(aesCipher);
 
                         // Make the chat view visible

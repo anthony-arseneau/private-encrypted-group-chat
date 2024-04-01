@@ -174,8 +174,10 @@ public class RSACipher {
     /*
      * Main method that will create RSA key pairs given file names to save them in
      */
+    /*
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         RSACipher rsaEncryption = new RSACipher();
-        rsaEncryption.createKeyPair("Documents/server_public.key", "Documents/server_private.key");
+        rsaEncryption.createKeyPair("ServerDocuments/server_public.key", "ServerDocuments/server_private.key");
     }
+    */
 }

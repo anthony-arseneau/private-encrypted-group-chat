@@ -55,11 +55,11 @@ public class ChatClientSender {
 
             // Get server RSA encryption
             RSACipher serverRSACipher = new RSACipher();
-            serverRSACipher.readPublicKey("Documents/server_public.key");
+            serverRSACipher.readPublicKey("ClientDocuments/server_public.key");
 
             // Get client RSA encryption
             RSACipher clientRSACipher = new RSACipher();
-            clientRSACipher.readPublicKey("Documents/public.key");
+            clientRSACipher.readPublicKey("ClientDocuments/public.key");
 
             // Set the message for sending the creadentials
             String privateMessage = usernameHashedHex + " " + passwordHashedHex;

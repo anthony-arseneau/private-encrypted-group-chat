@@ -67,7 +67,7 @@ public class ChatServer {
             // Error handling
             e.printStackTrace();
         }
-    }
+    } 
 
     /********* Start Server Program *********/
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
