@@ -1,12 +1,10 @@
 package client;
 
+import tools.ciphers.*;
 import java.net.*;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import javax.crypto.*;
-
-import ciphers.*;
-
 import java.io.*;
 
 /**

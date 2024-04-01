@@ -8,8 +8,7 @@ import java.util.*;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 
-import ciphers.AESCipher;
-import ciphers.RSACipher;
+import tools.ciphers.*;
 
 /**
  * This class is for handling all the clients that are connected to the server. It holds a list of all clients that are connected,

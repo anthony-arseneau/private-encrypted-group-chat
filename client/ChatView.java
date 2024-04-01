@@ -11,7 +11,7 @@ import javax.crypto.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import ciphers.AESCipher;
+import tools.ciphers.AESCipher;
 
 /**
  * This class is for the chat window for clients to communicate with other authorized clients

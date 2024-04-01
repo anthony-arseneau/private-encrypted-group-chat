@@ -9,8 +9,8 @@ import java.util.Base64;
 
 import javax.crypto.*;
 
-import ciphers.RSACipher;
-import conversion.Converter;
+import tools.ciphers.RSACipher;
+import tools.conversion.Converter;
 
 /**
  * This class connects and sends messages to the server
