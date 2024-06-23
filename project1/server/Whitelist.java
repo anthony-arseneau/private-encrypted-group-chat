@@ -157,10 +157,10 @@ public class Whitelist {
 
     }
 
-    /*
+    
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
         Whitelist whitelist = new Whitelist();
         whitelist.addToWhitelist();
     }
-    */
+    
 }
