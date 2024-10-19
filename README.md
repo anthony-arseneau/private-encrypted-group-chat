@@ -34,5 +34,5 @@ java client/AuthenticatorView
 ```
 
 ## Prerequisites
-Java Development Kit (JDK)
-Basic knowledge of networking and cryptographic concepts
+- Java Development Kit (JDK)
+- Basic knowledge of networking and cryptographic concepts
