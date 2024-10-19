@@ -1,4 +1,4 @@
-# Secure Messaging Application
+# Encrypted Messaging Application
 ## Overview
 This project is a secure messaging application designed to facilitate private group chat functionality through advanced encryption techniques. It ensures data confidentiality, integrity, and efficiency while enabling real-time communication among users.
 
