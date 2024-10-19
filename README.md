@@ -2,9 +2,8 @@
 ## Overview
 This project is a secure messaging application designed to facilitate private group chat functionality through advanced encryption techniques. It ensures data confidentiality, integrity, and efficiency while enabling real-time communication among users.
 
-[Multiple client views communicating to each other](https://anthonyarseneau.ca/assets/media/images/projects/GroupChat/SPGC.jpg)
+## Features![SPGC_Single_View](https://github.com/user-attachments/assets/c9259742-28c0-4db0-9ca3-772169ff1629)
 
-## Features
 - Private Group Chat: Users can create and participate in secure group chats.
 - Encryption:
   - RSA: Utilized for asymmetric encryption to securely exchange keys.
